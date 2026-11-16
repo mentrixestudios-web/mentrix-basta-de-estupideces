@@ -64,7 +64,7 @@ export const CARDS = [
     title: 'El Casi Algo que se hizo Humo',
     text: '¿Cuál ha sido la mayor humillación que viviste por un "casi algo"? (¿Ir a la casa, conocer a la tía, o que dijera "nunca fuimos nada"?).',
     penalty: 'Si no cuentas la historia con lujo de detalles, toma 2 tragos.',
-    quote: '"Yo andaba de payasa contándole a todo el mundo y para él no fuimos nada." - Carla'
+    quote: '"Yo andaba de payasa contándole a todo el mundo y para él no fuimos nada." - Karla'
   },
   {
     id: 'b2',
@@ -80,7 +80,7 @@ export const CARDS = [
     title: 'El "Bebecita" a la Distancia',
     text: '¿Cuál es el piropo o apodo más chanta que te dijeron y con el que igual caíste redondita al principio?',
     penalty: 'Si finges que nunca te ha pasado, toma 2 tragos por mentirosa.',
-    quote: '"Cuando un loco te empieza a decir bebecita... amiga, ¡ahí no es!" - Carla'
+    quote: '"Cuando un loco te empieza a decir bebecita... amiga, ¡ahí no es!" - Karla'
   },
   {
     id: 'b4',

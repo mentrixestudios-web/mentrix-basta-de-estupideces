@@ -1,7 +1,7 @@
 export const CHARACTERS = [
   {
-    id: 'carla',
-    name: 'Carla Ramos',
+    id: 'karla',
+    name: 'Karla Ramos',
     title: 'La Intensa',
     subtitle: 'Reina de las Anécdotas & Signo Libra',
     avatar: '/images/carla.jpg',

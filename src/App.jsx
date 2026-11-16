@@ -16,9 +16,9 @@ export default function App() {
   const [isCharactersOpen, setIsCharactersOpen] = useState(false);
   const [isPlayersOpen, setIsPlayersOpen] = useState(false);
 
-  // Initial Players with Carla, Paulina & Natalia
+  // Initial Players with Karla, Paulina & Natalia
   const [players, setPlayers] = useState([
-    { id: '1', name: 'Carla', avatar: '/images/carla.jpg', drinksCount: 0 },
+    { id: '1', name: 'Karla', avatar: '/images/carla.jpg', drinksCount: 0 },
     { id: '2', name: 'Paulina', avatar: '/images/paulina.jpg', drinksCount: 0 },
     { id: '3', name: 'Natalia', avatar: '/images/natalia.jpg', drinksCount: 0 }
   ]);

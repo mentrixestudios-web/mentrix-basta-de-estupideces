@@ -79,7 +79,7 @@ export function PlayerSetup({ isOpen, onClose, players, setPlayers, currentTurnI
             <span className="text-[11px] text-gray-400 font-semibold">Avatar:</span>
             <div className="flex gap-2">
               {[
-                { name: 'Carla', url: '/images/carla.jpg' },
+                { name: 'Karla', url: '/images/carla.jpg' },
                 { name: 'Paulina', url: '/images/paulina.jpg' },
                 { name: 'Natalia', url: '/images/natalia.jpg' }
               ].map((av) => (
