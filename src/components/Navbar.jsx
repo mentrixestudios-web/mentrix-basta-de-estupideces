@@ -1,12 +1,15 @@
 import React from 'react';
-import { Volume2, Users, Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
+import { Home, Users, Sparkles, AlertCircle, BookOpen } from 'lucide-react';
 
-export function Navbar({ onOpenBuzzer, onOpenPlayers, onOpenCharacters, players, currentPlayer }) {
+export function Navbar({ onOpenBuzzer, onOpenPlayers, onOpenCharacters, onOpenRules, onGoHome, currentScreen, players, currentPlayer }) {
   return (
     <header className="sticky top-0 z-40 bg-[#161224]/90 backdrop-blur-md border-b-2 border-black px-4 py-2.5 shadow-md">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
-        {/* Logo / Brand */}
-        <div className="flex items-center gap-2.5">
+        {/* Logo / Brand & Home */}
+        <div 
+          onClick={onGoHome}
+          className="flex items-center gap-2.5 cursor-pointer hover:opacity-90 transition"
+        >
           <img 
             src="/images/portada.jpg" 
             alt="Basta de Estupideces Logo" 
@@ -17,17 +20,29 @@ export function Navbar({ onOpenBuzzer, onOpenPlayers, onOpenCharacters, players,
               BASTA DE ESTUPIDECES
             </h1>
             <p className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">
-              El Juego de Carrete
+              {currentScreen === 'home' ? 'Pantalla de Inicio' : 'El Juego de Carrete'}
             </p>
           </div>
         </div>
 
-        {/* Current Turn & Quick Buttons */}
-        <div className="flex items-center gap-2">
-          {/* Turn Indicator */}
-          {currentPlayer && (
-            <div className="hidden sm:flex items-center gap-2 bg-[#261E38] px-3 py-1 rounded-full border border-purple-500/40 text-xs">
-              <span className="text-gray-400">Turno de:</span>
+        {/* Quick Buttons */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* If in Game, show Return Home button */}
+          {currentScreen === 'game' && (
+            <button
+              onClick={onGoHome}
+              className="bg-[#2A203F] hover:bg-[#392C55] text-yellow-300 p-2 rounded-xl border border-yellow-400/30 text-xs font-bold transition flex items-center gap-1 shadow-sm"
+              title="Volver a la Pantalla de Inicio"
+            >
+              <Home className="w-4 h-4" />
+              <span className="hidden sm:inline">Inicio</span>
+            </button>
+          )}
+
+          {/* Turn Indicator (only in game) */}
+          {currentScreen === 'game' && currentPlayer && (
+            <div className="hidden md:flex items-center gap-2 bg-[#261E38] px-3 py-1 rounded-full border border-purple-500/40 text-xs">
+              <span className="text-gray-400">Turno:</span>
               <span className="font-bold text-yellow-300 flex items-center gap-1">
                 {currentPlayer.avatar && (
                   <img src={currentPlayer.avatar} className="w-4 h-4 rounded-full object-cover" />
@@ -44,23 +59,32 @@ export function Navbar({ onOpenBuzzer, onOpenPlayers, onOpenCharacters, players,
             title="Ver Protagonistas"
           >
             <Sparkles className="w-4 h-4 text-yellow-400" />
-            <span className="hidden md:inline">Protagonistas</span>
+            <span className="hidden lg:inline">Protagonistas</span>
           </button>
 
           {/* Players Button */}
           <button
             onClick={onOpenPlayers}
             className="bg-[#2A203F] hover:bg-[#392C55] text-white p-2 rounded-xl border border-purple-400/30 text-xs font-bold transition flex items-center gap-1 shadow-sm"
-            title="Jugadoras"
+            title="Jugadoras en la mesa"
           >
             <Users className="w-4 h-4 text-cyan-400" />
-            <span className="hidden md:inline">{players.length} Amigas</span>
+            <span className="hidden sm:inline">{players.length} Amigas</span>
+          </button>
+
+          {/* Rules Button */}
+          <button
+            onClick={onOpenRules}
+            className="bg-[#2A203F] hover:bg-[#392C55] text-white p-2 rounded-xl border border-purple-400/30 text-xs font-bold transition flex items-center gap-1 shadow-sm"
+            title="Reglas"
+          >
+            <BookOpen className="w-4 h-4 text-pink-400" />
           </button>
 
           {/* THE BIG RED BASTA BUZZER BUTTON */}
           <button
             onClick={onOpenBuzzer}
-            className="bg-red-600 hover:bg-red-500 active:scale-95 text-white px-3 py-1.5 rounded-xl border-2 border-black shadow-pop font-comic text-sm tracking-wide flex items-center gap-1.5 animate-pulse transition"
+            className="bg-red-600 hover:bg-red-500 active:scale-95 text-white px-2.5 sm:px-3 py-1.5 rounded-xl border-2 border-black shadow-pop font-comic text-xs sm:text-sm tracking-wide flex items-center gap-1 animate-pulse transition"
           >
             <AlertCircle className="w-4 h-4 text-yellow-300 fill-yellow-300" />
             <span>¡BASTA!</span>

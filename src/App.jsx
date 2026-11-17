@@ -1,20 +1,22 @@
 import React, { useState, useMemo } from 'react';
 import { CARDS } from './data/cards';
-import { CHARACTERS } from './data/characters';
 import { Navbar } from './components/Navbar';
+import { HomeScreen } from './components/HomeScreen';
 import { CardDeck } from './components/CardDeck';
 import { CategoriesFilter } from './components/CategoriesFilter';
 import { BuzzerModal } from './components/BuzzerModal';
 import { CharactersModal } from './components/CharactersModal';
 import { PlayerSetup } from './components/PlayerSetup';
-import { Sparkles, Dices, AlertCircle, Info } from 'lucide-react';
+import { RulesModal } from './components/RulesModal';
 
 export default function App() {
+  const [currentScreen, setCurrentScreen] = useState('home'); // 'home' | 'game'
   const [activeCategory, setActiveCategory] = useState('all');
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isBuzzerOpen, setIsBuzzerOpen] = useState(false);
   const [isCharactersOpen, setIsCharactersOpen] = useState(false);
   const [isPlayersOpen, setIsPlayersOpen] = useState(false);
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
 
   // Initial Players with Karla, Paulina & Natalia
   const [players, setPlayers] = useState([
@@ -34,9 +36,7 @@ export default function App() {
   const currentPlayer = players[currentTurnIndex % players.length];
 
   const handleNextCard = () => {
-    // Next random or sequential card
     setCurrentCardIndex(prev => (prev + 1) % filteredCards.length);
-    // Next player turn
     setCurrentTurnIndex(prev => (prev + 1) % players.length);
   };
 
@@ -51,43 +51,61 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col justify-between">
-      {/* Top Navigation */}
+      {/* Top Navigation Bar */}
       <Navbar
         onOpenBuzzer={() => setIsBuzzerOpen(true)}
         onOpenPlayers={() => setIsPlayersOpen(true)}
         onOpenCharacters={() => setIsCharactersOpen(true)}
+        onOpenRules={() => setIsRulesOpen(true)}
+        onGoHome={() => setCurrentScreen('home')}
+        currentScreen={currentScreen}
         players={players}
         currentPlayer={currentPlayer}
       />
 
-      {/* Main Content Area */}
+      {/* Main Screen Content */}
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-4 flex flex-col justify-center">
-        {/* Category Selector */}
-        <div className="mb-4">
-          <CategoriesFilter
-            activeCategory={activeCategory}
-            setActiveCategory={(cat) => {
-              setActiveCategory(cat);
-              setCurrentCardIndex(0);
-            }}
+        {currentScreen === 'home' ? (
+          /* ================= PANTALLA DE INICIO ================= */
+          <HomeScreen
+            onStartGame={() => setCurrentScreen('game')}
+            onOpenPlayers={() => setIsPlayersOpen(true)}
+            onOpenCharacters={() => setIsCharactersOpen(true)}
+            onOpenRules={() => setIsRulesOpen(true)}
+            onOpenBuzzer={() => setIsBuzzerOpen(true)}
+            players={players}
           />
-        </div>
+        ) : (
+          /* ================= PANTALLA DE JUEGO ================= */
+          <div className="w-full flex flex-col justify-center animate-fade-in">
+            {/* Category Selector */}
+            <div className="mb-4">
+              <CategoriesFilter
+                activeCategory={activeCategory}
+                setActiveCategory={(cat) => {
+                  setActiveCategory(cat);
+                  setCurrentCardIndex(0);
+                }}
+              />
+            </div>
 
-        {/* Card Display */}
-        <CardDeck
-          card={currentCard}
-          onNextCard={handleNextCard}
-          currentPlayer={currentPlayer}
-          onAddDrink={handleAddDrink}
-        />
+            {/* Central Card Deck */}
+            <CardDeck
+              card={currentCard}
+              onNextCard={handleNextCard}
+              currentPlayer={currentPlayer}
+              onAddDrink={handleAddDrink}
+            />
+          </div>
+        )}
       </main>
 
-      {/* Footer / Credits */}
-      <footer className="bg-[#120F1D] border-t border-purple-500/20 py-3 px-4 text-center text-xs text-gray-400">
+      {/* Footer */}
+      <footer className="bg-[#120F1D] border-t border-purple-500/20 py-2.5 px-4 text-center text-xs text-gray-400">
         <p className="flex items-center justify-center gap-1.5 font-medium">
           <span>Inspirado en</span>
           <strong className="text-yellow-400 font-comic text-sm">"Basta de Estupideces Podcast"</strong>
-          <span>• Base Mentrix</span>
+          <span>• Mentrix Studios (Servidor Local)</span>
         </p>
       </footer>
 
@@ -109,6 +127,11 @@ export default function App() {
         setPlayers={setPlayers}
         currentTurnIndex={currentTurnIndex}
         setCurrentTurnIndex={setCurrentTurnIndex}
+      />
+
+      <RulesModal
+        isOpen={isRulesOpen}
+        onClose={() => setIsRulesOpen(false)}
       />
     </div>
   );
