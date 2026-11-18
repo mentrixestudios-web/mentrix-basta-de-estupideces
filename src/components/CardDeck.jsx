@@ -1,19 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Wine, CheckCircle2, ChevronRight, HelpCircle, Eye, Coffee, Flame } from 'lucide-react';
+import { Wine, CheckCircle2, ChevronRight, HelpCircle, Eye, Coffee, Flame, EyeOff, Sparkles, Trophy, Camera } from 'lucide-react';
 import { CATEGORIES } from '../data/cards';
 import { GAME_MODES } from '../data/modes';
 import { VotingWidget } from './VotingWidget';
 import { sounds } from '../utils/soundEffects';
 
-export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink, onAddDrinkToPlayer, players, selectedMode }) {
+export function CardDeck({
+  card,
+  onNextCard,
+  currentPlayer,
+  onAddDrink,
+  onAddDrinkToPlayer,
+  players,
+  selectedMode,
+  onRecordWhoWinner,
+  onRecordBastaVerdict,
+  onOpenVerdict,
+  cardsPlayedCount,
+  onOpenStoryModal
+}) {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
+
+  useEffect(() => {
+    if (card?.isAnonymous) {
+      sounds.playSuspense();
+    }
+  }, [card?.id]);
 
   if (!card) return null;
 
   const category = CATEGORIES[card.category] || CATEGORIES.buzon;
   const modeObj = GAME_MODES.find(m => m.id === selectedMode) || GAME_MODES[1];
+  const isAnonymous = Boolean(card.isAnonymous);
 
   const handleNext = () => {
     setIsFlipping(true);
@@ -85,24 +105,47 @@ export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink, onAddDri
 
       {/* Main Card */}
       <div
-        className={`relative bg-[#211A34] border-4 border-black rounded-3xl p-5 md:p-7 shadow-pop-lg transition-transform duration-200 ${
-          isFlipping ? 'scale-95 opacity-50' : 'scale-100 opacity-100'
-        }`}
+        className={`relative border-4 rounded-3xl p-5 md:p-7 shadow-pop-lg transition-transform duration-200 ${
+          isAnonymous
+            ? 'bg-[#281335] border-fuchsia-400 ring-4 ring-fuchsia-500/30'
+            : 'bg-[#211A34] border-black'
+        } ${isFlipping ? 'scale-95 opacity-50' : 'scale-100 opacity-100'}`}
         style={{
-          boxShadow: '6px 6px 0px 0px #000000'
+          boxShadow: isAnonymous ? '0 0 25px rgba(217, 70, 239, 0.35), 6px 6px 0px 0px #000' : '6px 6px 0px 0px #000000'
         }}
       >
-        {/* Category Header */}
+        {/* Category Header or Anonymous Badge */}
         <div className="flex items-center justify-between gap-2 mb-4">
-          <span
-            className="font-comic text-xs md:text-sm px-3 py-1 rounded-xl border-2 border-black uppercase tracking-wider font-bold shadow-sm"
-            style={{ backgroundColor: category.color, color: '#000000' }}
-          >
-            {category.name}
-          </span>
-          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest bg-[#151122] px-2.5 py-1 rounded-lg border border-purple-500/20">
-            {category.tag}
-          </span>
+          {isAnonymous ? (
+            <span className="bg-gradient-to-r from-fuchsia-500 to-pink-600 text-white font-comic text-xs md:text-sm px-3 py-1 rounded-xl border-2 border-black uppercase tracking-wider font-bold shadow-sm flex items-center gap-1.5 animate-pulse">
+              <EyeOff className="w-4 h-4" />
+              <span>CONFESIÓN ANÓNIMA</span>
+            </span>
+          ) : (
+            <span
+              className="font-comic text-xs md:text-sm px-3 py-1 rounded-xl border-2 border-black uppercase tracking-wider font-bold shadow-sm"
+              style={{ backgroundColor: category.color, color: '#000000' }}
+            >
+              {category.name}
+            </span>
+          )}
+
+          <div className="flex items-center gap-1.5">
+            {onOpenStoryModal && (
+              <button
+                type="button"
+                onClick={() => onOpenStoryModal(card)}
+                className="bg-[#181124] hover:bg-pink-900/60 text-pink-300 hover:text-white px-2 py-0.5 rounded-lg border border-pink-500/40 text-[10px] font-bold flex items-center gap-1 transition"
+                title="Crear tarjeta para Instagram Story"
+              >
+                <Camera className="w-3 h-3 text-pink-400" />
+                <span className="hidden sm:inline">Story</span>
+              </button>
+            )}
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest bg-[#151122] px-2.5 py-1 rounded-lg border border-purple-500/20">
+              {isAnonymous ? 'SECRETO DEL GRUPO' : category.tag}
+            </span>
+          </div>
         </div>
 
         {/* Card Title */}
@@ -111,8 +154,14 @@ export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink, onAddDri
         </h3>
 
         {/* Card Question / Challenge Body */}
-        <div className="bg-[#171224] p-4 md:p-5 rounded-2xl border-2 border-purple-500/30 mb-4">
-          <p className="text-base md:text-lg text-white font-semibold leading-relaxed whitespace-pre-line">
+        <div
+          className={`p-4 md:p-5 rounded-2xl border-2 mb-4 ${
+            isAnonymous
+              ? 'bg-[#180B22] border-fuchsia-500/40 text-fuchsia-100'
+              : 'bg-[#171224] border-purple-500/30 text-white'
+          }`}
+        >
+          <p className="text-base md:text-lg font-semibold leading-relaxed whitespace-pre-line">
             {card.text}
           </p>
 
@@ -137,14 +186,24 @@ export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink, onAddDri
               )}
             </div>
           )}
+
+          {/* Anonymous mini challenge */}
+          {isAnonymous && (
+            <div className="mt-3 pt-3 border-t border-fuchsia-500/20 text-xs text-yellow-300/90 italic flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-fuchsia-400 shrink-0" />
+              <span>¿Adivinas quién la escribió? Si aciertas, ella toma; si fallas, ¡tomas tú!</span>
+            </div>
+          )}
         </div>
 
-        {/* ================= FASE 2: VOTACIÓN INTERACTIVA EN PANTALLA ================= */}
+        {/* ================= VOTACIÓN INTERACTIVA EN PANTALLA ================= */}
         <VotingWidget
           card={card}
           players={players}
           onAddDrinkToPlayer={onAddDrinkToPlayer}
           selectedMode={selectedMode}
+          onRecordWhoWinner={onRecordWhoWinner}
+          onRecordBastaVerdict={onRecordBastaVerdict}
         />
 
         {/* Penalty / Shot Box */}
@@ -221,6 +280,24 @@ export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink, onAddDri
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Button to Finish and View Verdict */}
+      {onOpenVerdict && (
+        <div className="mt-3 text-center">
+          <button
+            onClick={onOpenVerdict}
+            className="w-full bg-[#1C142B] hover:bg-[#2B1B42] text-yellow-300 border-2 border-yellow-400/40 hover:border-yellow-400 py-2.5 px-4 rounded-2xl font-comic text-xs sm:text-sm tracking-wider flex items-center justify-center gap-2 shadow-sm transition active:scale-98"
+          >
+            <Trophy className="w-4 h-4 text-yellow-400" />
+            <span>VER DIAGNÓSTICO Y VEREDICTO FINAL</span>
+            {cardsPlayedCount > 0 && (
+              <span className="bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.2 rounded-full ml-1">
+                {cardsPlayedCount} jugadas
+              </span>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

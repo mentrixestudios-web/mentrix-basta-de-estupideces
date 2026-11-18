@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti';
 import { Users, AlertOctagon, ThumbsUp, ThumbsDown, Award, RotateCcw, Wine, Check } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
 
-export function VotingWidget({ card, players, onAddDrinkToPlayer, selectedMode }) {
+export function VotingWidget({ card, players, onAddDrinkToPlayer, selectedMode, onRecordWhoWinner, onRecordBastaVerdict }) {
   // Votes state
   // For 'quien': { [playerId]: count }
   // For 'basta': { perdonable: count, basta: count }
@@ -36,6 +36,10 @@ export function VotingWidget({ card, players, onAddDrinkToPlayer, selectedMode }
     if (totalVotes === 0) return;
     setIsRevealed(true);
     sounds.playBuzzer();
+    const winner = getMostVotedPlayer();
+    if (winner?.player?.id && onRecordWhoWinner) {
+      onRecordWhoWinner(winner.player.id);
+    }
   };
 
   // Find most voted player
@@ -68,9 +72,11 @@ export function VotingWidget({ card, players, onAddDrinkToPlayer, selectedMode }
     const perdonableCount = votes.perdonable || 0;
     if (bastaCount >= perdonableCount) {
       sounds.playBuzzer();
+      if (onRecordBastaVerdict) onRecordBastaVerdict('basta');
     } else {
       sounds.playCheer();
       confetti({ particleCount: 40, spread: 60 });
+      if (onRecordBastaVerdict) onRecordBastaVerdict('perdonable');
     }
   };
 

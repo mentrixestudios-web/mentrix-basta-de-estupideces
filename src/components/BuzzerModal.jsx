@@ -6,6 +6,9 @@ export function BuzzerModal({ isOpen, onClose }) {
   useEffect(() => {
     if (isOpen) {
       sounds.playBuzzer();
+      setTimeout(() => {
+        sounds.playVoice('/audio/paulina_basta.mp3');
+      }, 350);
     }
   }, [isOpen]);
 

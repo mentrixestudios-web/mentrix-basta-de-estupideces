@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Users, BookOpen, AlertCircle, Sparkles, Check } from 'lucide-react';
+import { Play, Users, BookOpen, AlertCircle, Sparkles, Check, EyeOff, Lock, Trophy, Volume2 } from 'lucide-react';
 import { CHARACTERS } from '../data/characters';
 import { GAME_MODES } from '../data/modes';
 import { sounds } from '../utils/soundEffects';
@@ -10,9 +10,14 @@ export function HomeScreen({
   onOpenCharacters,
   onOpenRules,
   onOpenBuzzer,
+  onOpenAnonymous,
+  onOpenVerdict,
+  onOpenSoundboard,
+  cardsPlayedCount,
   players,
   selectedMode,
-  setSelectedMode
+  setSelectedMode,
+  customCardsCount
 }) {
   const handleStart = () => {
     sounds.playCheer();
@@ -120,6 +125,30 @@ export function HomeScreen({
         </div>
       </div>
 
+      {/* ================= FASE 3: BANNER BUZÓN ANÓNIMO ================= */}
+      <button
+        onClick={onOpenAnonymous}
+        className="w-full bg-gradient-to-r from-fuchsia-950/70 via-purple-950/70 to-pink-950/70 hover:from-fuchsia-900/80 hover:to-pink-900/80 border-2 border-fuchsia-400/60 rounded-2xl p-2.5 shadow-pop mb-3 flex items-center justify-between px-3.5 transition group text-left"
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-fuchsia-500 text-black flex items-center justify-center border border-black shrink-0 font-bold">
+            <EyeOff className="w-4 h-4 stroke-[2.5]" />
+          </div>
+          <div>
+            <span className="font-comic text-sm text-fuchsia-300 tracking-wide block leading-tight">
+              ¿TIENES UN SECRETO DE ALGUIEN PRESENTE?
+            </span>
+            <span className="text-[11px] text-gray-300">
+              Escríbelo anónimo en el buzón y saldrá de sorpresa
+            </span>
+          </div>
+        </div>
+
+        <span className="text-[10px] bg-fuchsia-500 text-white font-comic px-2 py-0.5 rounded-lg border border-black shadow-sm shrink-0">
+          {customCardsCount > 0 ? `${customCardsCount} en el mazo` : '+ Escribir'}
+        </span>
+      </button>
+
       {/* Main Play Button */}
       <button
         onClick={handleStart}
@@ -168,10 +197,33 @@ export function HomeScreen({
         </button>
       </div>
 
+      {/* Previous Round Diagnosis Banner if cards were played */}
+      {cardsPlayedCount > 0 && onOpenVerdict && (
+        <button
+          onClick={onOpenVerdict}
+          className="w-full bg-[#291F18] hover:bg-[#382B21] border-2 border-yellow-400 rounded-2xl p-2.5 shadow-pop mb-3 flex items-center justify-between px-3 transition group"
+        >
+          <div className="flex items-center gap-2 text-left">
+            <Trophy className="w-5 h-5 text-yellow-400 shrink-0 group-hover:scale-110 transition" />
+            <div>
+              <span className="font-comic text-xs text-yellow-300 block tracking-wide">
+                🏆 Partida en curso: {cardsPlayedCount} cartas jugadas
+              </span>
+              <span className="text-[10px] text-gray-300">
+                Toca para ver el Diagnóstico y Podio del Carrete
+              </span>
+            </div>
+          </div>
+          <span className="text-xs font-comic text-yellow-400 bg-black/40 px-2 py-1 rounded-lg border border-yellow-400/40">
+            Ver Veredicto →
+          </span>
+        </button>
+      )}
+
       {/* Meet the Hosts Mini Bar */}
       <button
         onClick={onOpenCharacters}
-        className="w-full bg-[#1C162D] hover:bg-[#271E3C] border-2 border-black rounded-2xl p-2.5 shadow-pop flex items-center justify-between px-4 transition group"
+        className="w-full bg-[#1C162D] hover:bg-[#271E3C] border-2 border-black rounded-2xl p-2.5 shadow-pop flex items-center justify-between px-4 transition group mb-2"
       >
         <div className="flex items-center gap-2">
           <div className="flex -space-x-2">
@@ -185,6 +237,29 @@ export function HomeScreen({
         </div>
         <Sparkles className="w-4 h-4 text-yellow-400 group-hover:rotate-12 transition" />
       </button>
+
+      {/* Soundboard Bar */}
+      {onOpenSoundboard && (
+        <button
+          onClick={onOpenSoundboard}
+          className="w-full bg-[#181226] hover:bg-[#261B3B] border-2 border-cyan-400/40 hover:border-cyan-400 rounded-2xl p-2.5 shadow-pop flex items-center justify-between px-4 transition group"
+        >
+          <div className="flex items-center gap-2">
+            <Volume2 className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition" />
+            <div className="text-left">
+              <span className="text-xs font-bold text-cyan-200 block -mb-0.5">
+                🎙️ Botonera de Voces (Soundboard Oficial)
+              </span>
+              <span className="text-[10px] text-gray-400 font-semibold">
+                Frases de Karla, Paulina y Natalia para poner en vivo
+              </span>
+            </div>
+          </div>
+          <span className="text-[10px] font-comic text-yellow-300 bg-black/40 px-2 py-1 rounded-lg border border-yellow-400/40">
+            9 Audios →
+          </span>
+        </button>
+      )}
     </div>
   );
 }
