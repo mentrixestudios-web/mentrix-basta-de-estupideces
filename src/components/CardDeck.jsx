@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Wine, CheckCircle2, ChevronRight, HelpCircle, Eye, EyeOff } from 'lucide-react';
+import { Wine, CheckCircle2, ChevronRight, HelpCircle, Eye, Coffee, Flame } from 'lucide-react';
 import { CATEGORIES } from '../data/cards';
+import { GAME_MODES } from '../data/modes';
+import { VotingWidget } from './VotingWidget';
 import { sounds } from '../utils/soundEffects';
 
-export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink }) {
+export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink, onAddDrinkToPlayer, players, selectedMode }) {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
 
   if (!card) return null;
 
   const category = CATEGORIES[card.category] || CATEGORIES.buzon;
+  const modeObj = GAME_MODES.find(m => m.id === selectedMode) || GAME_MODES[1];
 
   const handleNext = () => {
     setIsFlipping(true);
@@ -42,7 +45,7 @@ export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink }) {
 
   return (
     <div className="w-full max-w-lg mx-auto">
-      {/* Turn Banner */}
+      {/* Turn Banner with Active Mode */}
       <div className="flex items-center justify-between bg-[#261E38] px-4 py-2 rounded-2xl border-2 border-black shadow-pop mb-3">
         <div className="flex items-center gap-2.5">
           <img
@@ -59,13 +62,24 @@ export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink }) {
             </span>
           </div>
         </div>
-        <div className="text-right">
-          <span className="text-[10px] text-gray-400 font-bold uppercase block -mb-0.5">
-            Tragos:
+
+        {/* Mode Tag & Drinks counter */}
+        <div className="flex items-center gap-2">
+          <span
+            className="text-[10px] font-bold px-2 py-0.5 rounded-lg border border-black font-comic tracking-wide hidden sm:inline"
+            style={{ backgroundColor: modeObj.badgeColor, color: modeObj.id === 'te' || modeObj.id === 'previa' ? '#000' : '#FFF' }}
+          >
+            {modeObj.emoji} {modeObj.shortName}
           </span>
-          <span className="font-comic text-base text-pink-400">
-            🍷 {currentPlayer?.drinksCount || 0}
-          </span>
+          <div className="text-right">
+            <span className="text-[10px] text-gray-400 font-bold uppercase block -mb-0.5">
+              {selectedMode === 'te' ? 'Prendas:' : 'Tragos:'}
+            </span>
+            <span className="font-comic text-base text-pink-400">
+              {selectedMode === 'te' ? '⭐ ' : '🍷 '}
+              {currentPlayer?.drinksCount || 0}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -125,12 +139,26 @@ export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink }) {
           )}
         </div>
 
+        {/* ================= FASE 2: VOTACIÓN INTERACTIVA EN PANTALLA ================= */}
+        <VotingWidget
+          card={card}
+          players={players}
+          onAddDrinkToPlayer={onAddDrinkToPlayer}
+          selectedMode={selectedMode}
+        />
+
         {/* Penalty / Shot Box */}
         <div className="bg-gradient-to-r from-pink-900/40 to-purple-900/40 border-2 border-pink-500/50 rounded-2xl p-3.5 mb-4 flex items-start gap-2.5 text-pink-200 text-xs md:text-sm">
-          <Wine className="w-5 h-5 text-pink-400 shrink-0 mt-0.5" />
+          {selectedMode === 'te' ? (
+            <Coffee className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+          ) : selectedMode === 'sinfiltro' ? (
+            <Flame className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+          ) : (
+            <Wine className="w-5 h-5 text-pink-400 shrink-0 mt-0.5" />
+          )}
           <div>
             <strong className="text-pink-300 block font-comic text-sm tracking-wide">
-              CASTIGO / PRENDA:
+              {selectedMode === 'te' ? 'PENITENCIA / RETO:' : selectedMode === 'sinfiltro' ? 'CASTIGO SIN FILTRO:' : 'CASTIGO / PRENDA:'}
             </strong>
             <p className="leading-snug">{card.penalty}</p>
           </div>
@@ -154,13 +182,33 @@ export function CardDeck({ card, onNextCard, currentPlayer, onAddDrink }) {
             <span>¡CUMPLIDO!</span>
           </button>
 
-          {/* Toma Trago */}
+          {/* Toma Trago o Paga Prenda */}
           <button
             onClick={handleDrink}
-            className="bg-pink-600 hover:bg-pink-500 active:scale-95 text-white font-comic text-base md:text-lg py-3 px-3 rounded-2xl border-2 border-black shadow-pop flex items-center justify-center gap-1.5 transition"
+            className={`active:scale-95 text-white font-comic text-base md:text-lg py-3 px-3 rounded-2xl border-2 border-black shadow-pop flex items-center justify-center gap-1.5 transition ${
+              selectedMode === 'te'
+                ? 'bg-emerald-700 hover:bg-emerald-600'
+                : selectedMode === 'sinfiltro'
+                ? 'bg-red-600 hover:bg-red-500'
+                : 'bg-pink-600 hover:bg-pink-500'
+            }`}
           >
-            <Wine className="w-5 h-5 stroke-[2.5]" />
-            <span>TOMA TRAGO</span>
+            {selectedMode === 'te' ? (
+              <>
+                <Coffee className="w-5 h-5 stroke-[2.5]" />
+                <span>PAGA PRENDA</span>
+              </>
+            ) : selectedMode === 'sinfiltro' ? (
+              <>
+                <Flame className="w-5 h-5 stroke-[2.5]" />
+                <span>DOBLE SHOT</span>
+              </>
+            ) : (
+              <>
+                <Wine className="w-5 h-5 stroke-[2.5]" />
+                <span>TOMA TRAGO</span>
+              </>
+            )}
           </button>
         </div>
 

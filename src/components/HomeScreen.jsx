@@ -1,13 +1,30 @@
 import React from 'react';
-import { Play, Users, BookOpen, AlertCircle, Sparkles, Flame, ShieldAlert, Heart } from 'lucide-react';
+import { Play, Users, BookOpen, AlertCircle, Sparkles, Check } from 'lucide-react';
 import { CHARACTERS } from '../data/characters';
+import { GAME_MODES } from '../data/modes';
 import { sounds } from '../utils/soundEffects';
 
-export function HomeScreen({ onStartGame, onOpenPlayers, onOpenCharacters, onOpenRules, onOpenBuzzer, players }) {
+export function HomeScreen({
+  onStartGame,
+  onOpenPlayers,
+  onOpenCharacters,
+  onOpenRules,
+  onOpenBuzzer,
+  players,
+  selectedMode,
+  setSelectedMode
+}) {
   const handleStart = () => {
     sounds.playCheer();
     onStartGame();
   };
+
+  const handleSelectMode = (modeId) => {
+    sounds.playFlip();
+    setSelectedMode(modeId);
+  };
+
+  const currentModeObj = GAME_MODES.find(m => m.id === selectedMode) || GAME_MODES[1];
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full px-4 py-4 animate-fade-in text-center">
@@ -20,73 +37,86 @@ export function HomeScreen({ onStartGame, onOpenPlayers, onOpenCharacters, onOpe
       </div>
 
       {/* Main Cover Illustration */}
-      <div className="relative w-full max-w-sm mx-auto mb-4 group">
+      <div className="relative w-full max-w-sm mx-auto mb-3 group">
         <div className="relative rounded-3xl overflow-hidden border-4 border-black shadow-pop-lg bg-[#241A38]">
           <img
             src="/images/portada.jpg"
             alt="Basta de Estupideces Podcast"
             className="w-full h-auto object-cover transform transition-transform duration-300 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center p-3">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end justify-center p-3">
             <span className="font-comic text-xl text-yellow-300 tracking-wider comic-stroke-sm">
               AMIGAS HABLANDO CLARO
             </span>
           </div>
         </div>
 
-        {/* Small floating badge */}
+        {/* Floating badge */}
         <div className="absolute -bottom-3 right-4 bg-pink-600 text-white font-comic text-xs px-3 py-1 rounded-xl border-2 border-black shadow-pop rotate-6">
           🍸 100% CARRETE
         </div>
       </div>
 
-      {/* Title */}
+      {/* Title & Subtitle */}
       <h1 className="font-comic text-4xl sm:text-5xl text-yellow-300 leading-none mb-1 comic-stroke tracking-wide">
         BASTA DE ESTUPIDECES
       </h1>
-      <p className="text-xs sm:text-sm text-gray-300 font-semibold max-w-md mx-auto mb-5 leading-snug">
-        Confesiones, citas desastrosas, casi algos y veredictos sin filtro con <strong className="text-yellow-400">Karla, Paulina y Natalia</strong>.
+      <p className="text-xs sm:text-sm text-gray-300 font-semibold max-w-md mx-auto mb-4 leading-snug">
+        Confesiones, citas desastrosas, casi algos y veredictos con <strong className="text-yellow-400">Karla, Paulina y Natalia</strong>.
       </p>
 
-      {/* Meet the Hosts Bar */}
-      <div className="w-full bg-[#1C162D] border-2 border-black rounded-2xl p-3 shadow-pop mb-5">
-        <div className="flex items-center justify-between mb-2 px-1">
-          <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-wider">
-            Las Conductoras del Juego:
+      {/* ================= SELECTOR DE MODO DE INTENSIDAD ================= */}
+      <div className="w-full bg-[#1C152E] border-2 border-black rounded-2xl p-3.5 shadow-pop mb-4 text-left">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[11px] font-bold text-yellow-300 uppercase tracking-wider flex items-center gap-1">
+            <span>🔥 Elige la Intensidad de la Junta:</span>
           </span>
-          <button
-            onClick={onOpenCharacters}
-            className="text-[11px] text-yellow-300 hover:underline font-bold flex items-center gap-0.5"
-          >
-            <span>Ver Fichas</span>
-            <Sparkles className="w-3 h-3" />
-          </button>
+          <span className="text-[10px] text-gray-400 font-semibold">
+            Castigo: <strong className="text-white">{currentModeObj.penaltyType}</strong>
+          </span>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
-          {CHARACTERS.map((char) => (
-            <button
-              key={char.id}
-              onClick={onOpenCharacters}
-              className="bg-[#271E3C] hover:bg-[#342750] p-2 rounded-xl border border-purple-500/30 flex flex-col items-center gap-1 transition group"
-            >
-              <img
-                src={char.avatar}
-                alt={char.name}
-                className="w-12 h-12 rounded-full border-2 border-black object-cover group-hover:scale-105 transition"
-                style={{ borderColor: char.color }}
-              />
-              <span className="font-comic text-xs text-white tracking-wide">
-                {char.name.split(' ')[0]}
-              </span>
-              <span
-                className="text-[9px] font-bold px-1.5 py-0.2 rounded-md border border-black/40 text-black leading-tight"
-                style={{ backgroundColor: char.color }}
+        {/* 3 Modes Grid */}
+        <div className="grid grid-cols-3 gap-2 mb-2">
+          {GAME_MODES.map((mode) => {
+            const isSelected = selectedMode === mode.id;
+            return (
+              <button
+                key={mode.id}
+                type="button"
+                onClick={() => handleSelectMode(mode.id)}
+                className={`p-2.5 rounded-xl border-2 transition-all flex flex-col items-center text-center relative ${
+                  isSelected
+                    ? 'border-yellow-400 shadow-pop-hover bg-[#2D1F49] scale-102 font-bold'
+                    : 'border-purple-500/30 bg-[#241B38] opacity-75 hover:opacity-100 hover:border-white/40'
+                }`}
               >
-                {char.title}
-              </span>
-            </button>
-          ))}
+                {isSelected && (
+                  <div className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-yellow-400 text-black flex items-center justify-center border border-black text-[9px] font-black">
+                    ✓
+                  </div>
+                )}
+                <span className="text-2xl mb-1">{mode.emoji}</span>
+                <span className="font-comic text-xs tracking-wide text-white leading-tight">
+                  {mode.name}
+                </span>
+                <span
+                  className="text-[8px] font-bold uppercase mt-1 px-1.5 py-0.5 rounded"
+                  style={{ backgroundColor: isSelected ? mode.badgeColor : '#181224', color: isSelected ? '#000' : '#A78BFA' }}
+                >
+                  {mode.shortName}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Selected Mode Description */}
+        <div className="bg-[#140E22] px-3 py-2 rounded-xl border border-purple-500/20 text-xs text-gray-300">
+          <strong className={currentModeObj.accentColor}>
+            {currentModeObj.emoji} {currentModeObj.name}:
+          </strong>{' '}
+          {currentModeObj.description}
         </div>
       </div>
 
@@ -96,11 +126,11 @@ export function HomeScreen({ onStartGame, onOpenPlayers, onOpenCharacters, onOpe
         className="w-full bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 active:scale-98 text-black font-comic text-2xl sm:text-3xl py-4 px-6 rounded-2xl border-4 border-black shadow-pop-lg tracking-wider flex items-center justify-center gap-3 transition-all transform hover:-translate-y-0.5 mb-3"
       >
         <Play className="w-7 h-7 fill-black" />
-        <span>¡COMENZAR A JUGAR!</span>
+        <span>¡COMENZAR ({currentModeObj.shortName.toUpperCase()})!</span>
       </button>
 
       {/* Secondary Options Grid */}
-      <div className="grid grid-cols-3 gap-2.5 w-full">
+      <div className="grid grid-cols-3 gap-2.5 w-full mb-3">
         {/* Players setup */}
         <button
           onClick={onOpenPlayers}
@@ -137,6 +167,24 @@ export function HomeScreen({ onStartGame, onOpenPlayers, onOpenCharacters, onOpe
           <span className="text-[9px] text-red-200 -mt-1 font-semibold">Alarma</span>
         </button>
       </div>
+
+      {/* Meet the Hosts Mini Bar */}
+      <button
+        onClick={onOpenCharacters}
+        className="w-full bg-[#1C162D] hover:bg-[#271E3C] border-2 border-black rounded-2xl p-2.5 shadow-pop flex items-center justify-between px-4 transition group"
+      >
+        <div className="flex items-center gap-2">
+          <div className="flex -space-x-2">
+            {CHARACTERS.map(c => (
+              <img key={c.id} src={c.avatar} alt={c.name} className="w-7 h-7 rounded-full border-2 border-black object-cover" />
+            ))}
+          </div>
+          <span className="text-xs font-bold text-gray-200">
+            Conoce a las Conductoras & Superpoderes
+          </span>
+        </div>
+        <Sparkles className="w-4 h-4 text-yellow-400 group-hover:rotate-12 transition" />
+      </button>
     </div>
   );
 }
