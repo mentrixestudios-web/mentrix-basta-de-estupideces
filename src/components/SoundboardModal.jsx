@@ -99,7 +99,7 @@ export function SoundboardModal({ isOpen, onClose }) {
 
   const handlePlayClip = (clip) => {
     setPlayingClipId(clip.id);
-    const audio = sounds.playVoice(clip.url);
+    const audio = sounds.playVoice(clip.url, clip.text);
     if (audio) {
       audio.onended = () => {
         setPlayingClipId(null);

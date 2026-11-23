@@ -22,20 +22,115 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Auto-Healing & Stale Cache Buster Recovery -->
+    <script>
+      (function() {
+        function triggerEmergencyRecovery(reason) {
+          try {
+            var hasRetried = sessionStorage.getItem('basta_chunk_reload');
+            if (!hasRetried) {
+              console.warn('[Basta Recovery] Triggering recovery due to:', reason);
+              sessionStorage.setItem('basta_chunk_reload', 'true');
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                  for (var i = 0; i < regs.length; i++) regs[i].unregister();
+                });
+              }
+              if ('caches' in window) {
+                caches.keys().then(function(keys) {
+                  return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+                }).then(function() {
+                  window.location.reload();
+                });
+              } else {
+                window.location.reload();
+              }
+            }
+          } catch(e) {
+            window.location.reload();
+          }
+        }
+
+        window.addEventListener('error', function(e) {
+          var msg = (e && e.message) ? e.message.toLowerCase() : '';
+          var filename = (e && e.filename) ? e.filename.toLowerCase() : '';
+          if (
+            msg.indexOf('unexpected token') !== -1 ||
+            msg.indexOf('chunk') !== -1 ||
+            msg.indexOf('dynamically imported module') !== -1 ||
+            msg.indexOf('mime type') !== -1 ||
+            filename.indexOf('/assets/') !== -1
+          ) {
+            triggerEmergencyRecovery(msg || 'Script load failure');
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(e) {
+          var reason = e && e.reason ? (e.reason.message || String(e.reason)).toLowerCase() : '';
+          if (
+            reason.indexOf('dynamically imported module') !== -1 ||
+            reason.indexOf('chunk') !== -1 ||
+            reason.indexOf('unexpected token') !== -1
+          ) {
+            triggerEmergencyRecovery(reason);
+          }
+        });
+      })();
+    </script>
   </head>
   <body class="bg-[#120F1D] text-white selection:bg-[#FF6B00] selection:text-white min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- PWA Service Worker Registration -->
+    <!-- PWA Service Worker Management -->
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((reg) => console.log('SW registrado con éxito:', reg.scope))
-            .catch((err) => console.warn('Error al registrar SW:', err));
-        });
-      }
+      (function() {
+        var isLocal = window.location.hostname === 'localhost' ||
+                      window.location.hostname === '127.0.0.1' ||
+                      window.location.hostname.indexOf('192.168.') === 0;
+
+        if (isLocal) {
+          // Never run Service Worker in local dev to avoid cache poisoning
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              for (var i = 0; i < regs.length; i++) {
+                regs[i].unregister();
+              }
+            });
+          }
+        } else if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+              .then(function(reg) {
+                // Check for updates periodically and on load
+                reg.update();
+                reg.onupdatefound = function() {
+                  var installingWorker = reg.installing;
+                  if (installingWorker) {
+                    installingWorker.onstatechange = function() {
+                      if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        console.log('[SW] Nueva versión lista. Actualizando...');
+                      }
+                    };
+                  }
+                };
+              })
+              .catch(function(err) {
+                console.warn('Error al registrar SW:', err);
+              });
+
+            // Reload when active controller changes to guarantee fresh assets
+            var refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', function() {
+              if (!refreshing) {
+                refreshing = true;
+                window.location.reload();
+              }
+            });
+          });
+        }
+      })();
     </script>
   </body>
 </html>

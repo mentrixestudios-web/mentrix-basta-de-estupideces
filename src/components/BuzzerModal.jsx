@@ -4,12 +4,19 @@ import { sounds } from '../utils/soundEffects';
 
 export function BuzzerModal({ isOpen, onClose }) {
   useEffect(() => {
+    let timer = null;
     if (isOpen) {
       sounds.playBuzzer();
-      setTimeout(() => {
-        sounds.playVoice('/audio/paulina_basta.mp3');
+      timer = setTimeout(() => {
+        sounds.playVoice('/audio/paulina_basta.mp3', '¡Basta de estupideces! ¡Tarjeta roja!');
       }, 350);
+    } else {
+      sounds.stopVoice();
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+      sounds.stopVoice();
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;

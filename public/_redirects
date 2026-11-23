@@ -1,1 +1,5 @@
-/*    /index.html   200
+/assets/*    /404.html   404
+/audio/*     /404.html   404
+/images/*    /404.html   404
+/icons/*     /404.html   404
+/*           /index.html 200

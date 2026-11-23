@@ -17,30 +17,30 @@ export function Navbar({
   cardsPlayedCount
 }) {
   return (
-    <header className="sticky top-0 z-40 bg-[#161224]/90 backdrop-blur-md border-b-2 border-black px-4 py-2.5 shadow-md">
-      <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
+    <header className="sticky top-0 z-40 bg-[#161224]/95 backdrop-blur-md border-b-2 border-black px-2 sm:px-4 py-2 sm:py-2.5 shadow-md">
+      <div className="max-w-4xl mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
         {/* Logo / Brand & Home */}
         <div 
           onClick={onGoHome}
-          className="flex items-center gap-2.5 cursor-pointer hover:opacity-90 transition"
+          className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition min-w-0 shrink"
         >
           <img 
             src="/images/portada.jpg" 
             alt="Basta de Estupideces Logo" 
-            className="w-10 h-10 rounded-full border-2 border-yellow-400 shadow-pop-hover object-cover"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-yellow-400 shadow-pop-hover object-cover shrink-0"
           />
-          <div>
-            <h1 className="font-comic text-xl text-yellow-300 leading-none tracking-wide comic-stroke-sm">
+          <div className="min-w-0">
+            <h1 className="font-comic text-base sm:text-xl text-yellow-300 leading-none tracking-wide comic-stroke-sm truncate">
               BASTA DE ESTUPIDECES
             </h1>
-            <p className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">
-              {currentScreen === 'home' ? 'Pantalla de Inicio' : 'El Juego de Carrete'}
+            <p className="text-[9px] sm:text-[10px] text-cyan-300 font-bold uppercase tracking-wider truncate">
+              {currentScreen === 'home' ? 'Inicio' : 'El Juego'}
             </p>
           </div>
         </div>
 
         {/* Quick Buttons */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* If in Game, show Return Home button */}
           {currentScreen === 'game' && (
             <button
@@ -135,9 +135,9 @@ export function Navbar({
           {/* THE BIG RED BASTA BUZZER BUTTON */}
           <button
             onClick={onOpenBuzzer}
-            className="bg-red-600 hover:bg-red-500 active:scale-95 text-white px-2.5 sm:px-3 py-1.5 rounded-xl border-2 border-black shadow-pop font-comic text-xs sm:text-sm tracking-wide flex items-center gap-1 animate-pulse transition"
+            className="bg-red-600 hover:bg-red-500 active:scale-95 text-white px-2 sm:px-3 py-1.5 rounded-xl border-2 border-black shadow-pop font-comic text-xs sm:text-sm tracking-wide flex items-center gap-1 animate-pulse transition shrink-0"
           >
-            <AlertCircle className="w-4 h-4 text-yellow-300 fill-yellow-300" />
+            <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-300 fill-yellow-300" />
             <span>¡BASTA!</span>
           </button>
         </div>
